@@ -84,6 +84,6 @@ def kosaraju_algorithm(file):
     for value in data.values():
         # Compute size
         size.append(len(value))
-        size.sort(reverse=True)
+    size.sort(reverse=True)
     return size[:5]
 
