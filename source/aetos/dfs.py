@@ -6,8 +6,11 @@ the stongly connected component.
 
 '''
 
+import sys
+sys.setrecursionlimit(547483647)
+
 #: Expolored nodes
-EXPLORED = []
+EXPLORED = set()
 
 #: Time
 TIME = 1
@@ -23,17 +26,18 @@ def dfs(nodes, current_node, stack=None):
 
     '''
     global EXPLORED
+    global STACK
 
     if not stack:
         stack = []
 
-    EXPLORED.append(current_node)
-
+    EXPLORED.add(current_node)
     for edge in nodes[current_node]:
         if not edge in EXPLORED:
             stack = dfs(nodes, edge, stack)
 
     stack.append(current_node)
+    STACK.append(current_node)
     return stack
 
 def kosaraju_algorithm(file):
@@ -46,44 +50,50 @@ def kosaraju_algorithm(file):
 
     '''
     global EXPLORED
-    EXPLORED = []
+    global STACK
+    EXPLORED = set()
+    STACK = []
     forward = {}
     reverse = {}
     leader = 0
+    for i in range(1, 875715):
+        forward[i] = []
+        reverse[i] = []
     with open(file) as graph:
         for line in graph:
             variables = line.split(' ')
-
-            if int(variables[0]) in forward.keys():
-                forward[int(variables[0])].append(int(variables[1]))
-            else:
-                forward[int(variables[0])] = [int(variables[1])]
+            forward[int(variables[0])].append(int(variables[1]))
 
             # Reverse data
-            if not int(variables[1]) in reverse.keys():
-                reverse[int(variables[1])] = [int(variables[0])]
-            else:
-                reverse[int(variables[1])].append(int(variables[0]))
-            leader = int(variables[0])
+            reverse[int(variables[1])].append(int(variables[0]))
 
+            if int(variables[1]) > leader:
+                leader = int(variables[1])
+            if int(variables[0]) > leader:
+                leader = int(variables[0])
+    print 'Graph created'
     # Perform kosaraju algorithm 
     # Dfs on reverse search
+    print leader
+    print len(reverse.keys())
+    print len(forward.keys())
     for i in range(leader, 0, -1):
         if not i in EXPLORED:
-            value = dfs(reverse, i, [])
-            STACK.extend(value)
+            value = dfs(forward, i, [])
 
     data = {}
-    EXPLORED = []
-
-    for i in range(len(STACK)-1, 0, -1):
+    EXPLORED = set()
+    print 'reverse is done'
+    print 'Length of the stack:'
+    print len(STACK)
+    for i in range(len(STACK)-1, -1, -1):
         if not STACK[i] in EXPLORED:
-            data[STACK[i]] = dfs(forward, STACK[i])
-
-    size = [0,0,0,0]
+            data[STACK[i]] = dfs(reverse, STACK[i])
+    print 'We are done'
+    size = []
     for value in data.values():
         # Compute size
         size.append(len(value))
-        size.sort(reverse=True)
-    return size[:5]
+    size.sort(reverse=True)
+    return size[:6]
 
