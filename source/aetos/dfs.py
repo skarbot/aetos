@@ -24,32 +24,26 @@ def dfs(nodes, current_node, stack=None):
     '''
     global EXPLORED
 
-    counter = 0
+    counter = 1
 
     que = [current_node]
 
     if not stack:
         stack = []
-
+    EXPLORED.append(current_node)
     while que:
+        counter = 1
         vertex = que[len(que)-1]
-        if vertex in EXPLORED:
-            stack.append(vertex)
-            que.pop()
-            continue
-        else:
-            EXPLORED.append(vertex)
-
         neighbor_vertex = nodes.get(vertex, [])
         for each_vertex in neighbor_vertex:
             if not each_vertex in EXPLORED:
+                EXPLORED.append(each_vertex)
                 que.append(each_vertex)
-                counter = 1
-        # Handle single input nodes where neighbor_vertex will be []
-        if not counter:
+                counter = 0
+        print que
+        if counter:
             stack.append(vertex)
             que.pop()
-
     return stack
 
 def kosaraju_algorithm(file):
@@ -92,6 +86,7 @@ def kosaraju_algorithm(file):
     # Dfs on reverse search
     for i in range(leader, 0, -1):
         if not i in EXPLORED:
+            #print i
             value = dfs(reverse, i, [])
             STACK.extend(value)
 
@@ -99,6 +94,7 @@ def kosaraju_algorithm(file):
     EXPLORED = []
     print 'Leader: {0}'.format(leader)
     print 'Stack length : {0}'.format(len(STACK))
+    print 'Stack {0}'.format(STACK)
     for i in range(len(STACK)-1, -1, -1):
         if not STACK[i] in EXPLORED:
             data[STACK[i]] = dfs(forward, STACK[i])
@@ -108,5 +104,6 @@ def kosaraju_algorithm(file):
         # Compute size
         size.append(len(value))
     size.sort(reverse=True)
+    print data
     return size[:5]
 
