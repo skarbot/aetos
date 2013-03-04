@@ -24,16 +24,32 @@ def dfs(nodes, current_node, stack=None):
     '''
     global EXPLORED
 
+    counter = 0
+
+    que = [current_node]
+
     if not stack:
         stack = []
 
-    EXPLORED.append(current_node)
+    while que:
+        vertex = que[len(que)-1]
+        if vertex in EXPLORED:
+            stack.append(vertex)
+            que.pop()
+            continue
+        else:
+            EXPLORED.append(vertex)
 
-    for edge in nodes[current_node]:
-        if not edge in EXPLORED:
-            stack = dfs(nodes, edge, stack)
+        neighbor_vertex = nodes.get(vertex, [])
+        for each_vertex in neighbor_vertex:
+            if not each_vertex in EXPLORED:
+                que.append(each_vertex)
+                counter = 1
+        # Handle single input nodes where neighbor_vertex will be []
+        if not counter:
+            stack.append(vertex)
+            que.pop()
 
-    stack.append(current_node)
     return stack
 
 def kosaraju_algorithm(file):
@@ -46,26 +62,32 @@ def kosaraju_algorithm(file):
 
     '''
     global EXPLORED
+    global STACK
+
+    STACK = []
     EXPLORED = []
     forward = {}
     reverse = {}
     leader = 0
+
     with open(file) as graph:
         for line in graph:
             variables = line.split(' ')
+            variables = [int(variables[0]), int(variables[1])]
 
-            if int(variables[0]) in forward.keys():
-                forward[int(variables[0])].append(int(variables[1]))
-            else:
-                forward[int(variables[0])] = [int(variables[1])]
+            forward[variables[0]] = forward.get(variables[0], [])
+            forward[variables[0]].append(variables[1])
 
             # Reverse data
-            if not int(variables[1]) in reverse.keys():
-                reverse[int(variables[1])] = [int(variables[0])]
-            else:
-                reverse[int(variables[1])].append(int(variables[0]))
-            leader = int(variables[0])
+            reverse[variables[1]] = reverse.get(variables[1], [])
+            reverse[variables[1]].append(variables[0])
 
+            if variables[0] >  leader:
+                leader = variables[0]
+            if variables[1] >= leader:
+                leader = variables[1]
+
+    print 'Graph computed-----------'
     # Perform kosaraju algorithm 
     # Dfs on reverse search
     for i in range(leader, 0, -1):
@@ -75,8 +97,9 @@ def kosaraju_algorithm(file):
 
     data = {}
     EXPLORED = []
-
-    for i in range(len(STACK)-1, 0, -1):
+    print 'Leader: {0}'.format(leader)
+    print 'Stack length : {0}'.format(len(STACK))
+    for i in range(len(STACK)-1, -1, -1):
         if not STACK[i] in EXPLORED:
             data[STACK[i]] = dfs(forward, STACK[i])
 
