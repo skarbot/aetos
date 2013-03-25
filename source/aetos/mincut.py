@@ -2,9 +2,6 @@ import copy
 import random
 
 
-MIN_CUT=0
-
-
 def open_file(filepath):
    graph = {}
    with open(filepath) as filedata:
@@ -14,14 +11,15 @@ def open_file(filepath):
             graph[vertex[0]] = vertex[1:]
    return graph
 
+
 def main():
-    global MIN_CUT
     filepath = '/home/Kartikeyan.Sundaraja/workspace/aetos/test/data/kargerMinCut.txt'
     graph = open_file(filepath)
     min_cut = 0
     for i in range(0, 201):
         min_cut_temp = karger(copy.deepcopy(graph))
-        print min_cut_temp
+        if min_cut == 0:
+            min_cut = min_cut_temp
         if min_cut_temp < min_cut:
             min_cut = min_cut_temp
     return min_cut
